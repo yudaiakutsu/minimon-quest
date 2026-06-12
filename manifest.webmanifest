@@ -1,0 +1,13 @@
+{
+  "name": "ミニモンクエスト",
+  "short_name": "ミニモン",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1c222b",
+  "theme_color": "#1c222b",
+  "icons": [
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

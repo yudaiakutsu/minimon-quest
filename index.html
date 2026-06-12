@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ミニモン">
+<title>ミニモンクエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="screenwrap"><canvas id="screen" width="240" height="160"></canvas></div>
+  <div id="controls">
+    <div id="dpad">
+      <div class="dbtn" id="btn-up">▲</div>
+      <div class="dbtn" id="btn-left">◀</div>
+      <div class="dbtn" id="btn-right">▶</div>
+      <div class="dbtn" id="btn-down">▼</div>
+    </div>
+    <div id="centerbtns"><div class="sbtn" id="btn-start">START</div></div>
+    <div id="abtns">
+      <div class="abtn" id="btn-b">B</div>
+      <div class="abtn" id="btn-a">A</div>
+    </div>
+  </div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
