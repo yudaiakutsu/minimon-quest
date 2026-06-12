@@ -3,6 +3,9 @@
 ファイアーレッド風の操作感を目指した、完全オリジナルの自作モンスターRPG(Webアプリ/PWA)。
 任天堂の素材・名称は一切使っていないので、配布・公開も自由です。
 
+**▶ 遊ぶ: https://yudaiakutsu.github.io/minimon-quest/**
+(iPhoneはSafariで開いて 共有 →「ホーム画面に追加」でアプリ化)
+
 ## 遊び方(Mac上で)
 
 ```sh
