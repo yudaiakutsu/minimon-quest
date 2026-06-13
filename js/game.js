@@ -480,6 +480,71 @@ function numberPicker(min, max, prompt, costFn) {
   return new Promise(res => sceneStack.push(new NumberPicker(min, max, prompt, costFn, res)));
 }
 
+// ---------- 夢(記憶解錠)演出 ----------
+// 各バッジ取得時に見る断片。少しずつ過去(ウラ世界・父・眠るもの)が明かされる伏線。
+const DREAMS = {
+  badge1: [
+    "…ゆめを みている。",
+    "ちいさな てを\nだれかが ぎゅっと にぎっている。",
+    "「ハル… めを とじても\nこわくないからな」",
+    "とおくで なにか おおきなものが\nねむっている きが する…",
+    "…ハッ。\nいまのは… ゆめ だったのか?",
+  ],
+};
+class DreamScene {
+  constructor(lines, res) {
+    this.pages = lines.map(t => wrapText(t, 22));
+    this.pi = 0; this.ci = 0; this.res = res; this.t = 0;
+  }
+  update() {
+    this.t++;
+    const full = this.pages[this.pi].join("").length;
+    if (this.ci < full) {
+      if (this.t % 2 === 0) this.ci++;
+      if (Input.held.has("a") || Input.held.has("b")) this.ci = full;
+    } else if (Input.pressed.has("a") || Input.pressed.has("b")) {
+      this.pi++; this.ci = 0;
+      if (this.pi >= this.pages.length) { popScene(this); this.res(); }
+    }
+  }
+  draw() {
+    ctx.fillStyle = "#06060c"; ctx.fillRect(0, 0, W, H);
+    // ゆらめく光(眠るものの気配)
+    for (let i = 3; i >= 1; i--) {
+      const r = 28 + i * 16 + Math.sin(this.t / 40 + i) * 4;
+      ctx.globalAlpha = 0.05 * i;
+      ctx.fillStyle = "#5a6ab0";
+      ctx.beginPath(); ctx.arc(W / 2, H / 2 - 8, r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // モノローグ(中央寄せ・タイプライタ)
+    let rest = this.ci;
+    const lines = this.pages[this.pi];
+    ctx.font = '10px "Hiragino Kaku Gothic ProN", sans-serif';
+    ctx.textAlign = "center";
+    for (let i = 0; i < lines.length; i++) {
+      const seg = lines[i].slice(0, Math.max(0, rest));
+      rest -= lines[i].length;
+      ctx.fillStyle = "#e8e8f8";
+      ctx.fillText(seg, W / 2, H / 2 + 30 + i * 16);
+    }
+    ctx.textAlign = "left";
+    const full = lines.join("").length;
+    if (this.ci >= full && Math.floor(this.t / 20) % 2) {
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#8088c0";
+      ctx.fillText("▼", W / 2, H - 18);
+      ctx.textAlign = "left";
+    }
+  }
+}
+function playDream(badgeFlag) {
+  const lines = DREAMS[badgeFlag];
+  if (!lines || game.flags["dream_" + badgeFlag]) return Promise.resolve();
+  game.flags["dream_" + badgeFlag] = true;
+  return new Promise(res => sceneStack.push(new DreamScene(lines, res)));
+}
+
 // ---------- バッジ画面 ----------
 class BadgeScene {
   constructor(res) { this.res = res; }
@@ -633,6 +698,7 @@ async function trainerBattleData(b) {
       if (r.badge) game.flags[r.badge] = true;
     }
     if (b.after) await b.after();
+    if (r && r.badge) await playDream(r.badge);
   } else if (result === "loss") {
     await whiteout();
   }
