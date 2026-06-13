@@ -316,6 +316,7 @@ const game = {
   mapId: "town", px: 9, py: 9, dir: "down",
   moving: false, prog: 0, tx: 0, ty: 0, walkFlip: false,
   party: [], box: [], bag: { capsule: 0, potion: 0 },
+  money: 0,
   flags: {},
   fade: 0,
 };
@@ -329,7 +330,7 @@ function visibleNpcs(map) {
 }
 function saveGame() {
   localStorage.setItem(SAVEKEY, JSON.stringify({
-    party: game.party, box: game.box, bag: game.bag, flags: game.flags,
+    party: game.party, box: game.box, bag: game.bag, money: game.money, flags: game.flags,
     mapId: game.mapId, px: game.px, py: game.py,
   }));
 }
@@ -389,7 +390,7 @@ function drawHPBar(x, y, w, ratio) {
 async function bagMenu(battle) {
   while (true) {
     const items = [`モンカプセル ×${game.bag.capsule}`, `キズぐすり  ×${game.bag.potion}`];
-    const i = await choice({ items, rect: [92, 70, 140] });
+    const i = await choice({ items, prompt: `しょじきん  ${game.money}えん`, rect: [4, 112, 232, 44] });
     if (i < 0) return null;
     if (i === 0) {
       if (!battle) { await say("たたかいの ときに つかおう。"); continue; }
@@ -413,6 +414,58 @@ async function bagMenu(battle) {
       if (battle) return { type: "item" };
     }
   }
+}
+
+// ---------- ショップ ----------
+const SHOP_ITEMS = {
+  capsule: { name: "モンカプセル", price: 200, key: "capsule" },
+  potion:  { name: "キズぐすり",   price: 150, key: "potion" },
+};
+async function shopMenu(stock) {
+  await say("いらっしゃい!\nなにを かって いくんだい?");
+  while (true) {
+    const items = stock.map(id => `${SHOP_ITEMS[id].name}  ${SHOP_ITEMS[id].price}えん`);
+    items.push("やめる");
+    const i = await choice({ items, prompt: `しょじきん  ${game.money}えん`, rect: [4, 112, 232, 44], cols: 1 });
+    if (i < 0 || i === stock.length) {
+      await say("毎度あり!\nまた きておくれ。");
+      return;
+    }
+    const it = SHOP_ITEMS[stock[i]];
+    const maxBuy = Math.min(99, Math.floor(game.money / it.price));
+    if (maxBuy < 1) { await say("おかねが たりないようだね…"); continue; }
+    // 個数えらび(上下で増減・A決定・Bキャンセル)
+    const qty = await numberPicker(1, maxBuy, `${it.name}を いくつ?`, n => `${it.price * n}えん`);
+    if (qty <= 0) continue;
+    const cost = it.price * qty;
+    game.money -= cost;
+    game.bag[it.key] += qty;
+    await say(`${it.name}を ${qty}こ かった!\n(${cost}えん)`);
+  }
+}
+class NumberPicker {
+  constructor(min, max, prompt, costFn, res) {
+    this.min = min; this.max = max; this.val = min;
+    this.prompt = prompt; this.costFn = costFn; this.res = res;
+  }
+  update() {
+    if (Input.pressed.has("up")) this.val = Math.min(this.max, this.val + 1);
+    if (Input.pressed.has("down")) this.val = Math.max(this.min, this.val - 1);
+    if (Input.pressed.has("right")) this.val = Math.min(this.max, this.val + 10);
+    if (Input.pressed.has("left")) this.val = Math.max(this.min, this.val - 10);
+    if (Input.pressed.has("a")) { popScene(this); this.res(this.val); }
+    else if (Input.pressed.has("b")) { popScene(this); this.res(0); }
+  }
+  draw() {
+    drawBox(4, 112, 232, 44);
+    drawText(this.prompt, 12, 118);
+    drawText("▲▼ で こすう  " + this.costFn(this.val), 12, 134);
+    drawBox(176, 108, 56, 22);
+    drawText("× " + this.val, 186, 114);
+  }
+}
+function numberPicker(min, max, prompt, costFn) {
+  return new Promise(res => sceneStack.push(new NumberPicker(min, max, prompt, costFn, res)));
 }
 
 // ---------- メニュー ----------
@@ -478,6 +531,12 @@ async function trainerBattleData(b) {
   if (result === "win") {
     if (b.flag) game.flags[b.flag] = true;
     if (b.win) await say(b.win);
+    const topLv = Math.max(...team.map(m => m.level));
+    const prize = b.prize != null ? b.prize : topLv * 80;
+    if (prize > 0) {
+      game.money += prize;
+      await say(`${b.name}から\nおこづかい ${prize}えんを もらった!`);
+    }
     const r = b.reward;
     if (r) {
       if (r.capsule) game.bag.capsule += r.capsule;
@@ -1027,6 +1086,7 @@ function newGame() {
   game.mapId = "town"; game.px = 9; game.py = 9; game.dir = "down";
   game.party = []; game.box = [];
   game.bag = { capsule: 0, potion: 0 };
+  game.money = 3000;
   game.flags = {};
   game.fade = 12;
   (async () => {

@@ -46,6 +46,13 @@ const MOVES = {
   slamrush:   { name: "ぶちかまし",        type: "ノーマル", power: 60, acc: 100 },
   needlepoke: { name: "はりつつき",        type: "むし",     power: 35, acc: 100 },
   windcut:    { name: "かぜきり",          type: "ひこう",   power: 65, acc: 100 },
+  bite:       { name: "かみつく",          type: "ノーマル", power: 60, acc: 100 },
+  quickhit:   { name: "すばやアタック",    type: "ノーマル", power: 40, acc: 100 },
+  gust:       { name: "かまいたち",        type: "ひこう",   power: 50, acc: 100 },
+  bubble:     { name: "あわ",              type: "みず",     power: 40, acc: 100, effect: { stat: "spd", delta: -1, target: "foe" } },
+  vinewhip:   { name: "つるのムチ",        type: "くさ",     power: 45, acc: 100 },
+  leer:       { name: "にらみつける",      type: "ノーマル", power: 0,  acc: 100, effect: { stat: "def", delta: -1, target: "foe" } },
+  charge:     { name: "じゅうでん",        type: "でんき",   power: 0,  acc: 100, effect: { stat: "atk", delta: 1, target: "self" } },
 };
 const STATNAME = { atk: "こうげき", def: "ぼうぎょ", spd: "すばやさ" };
 
@@ -72,7 +79,7 @@ const SPECIES = {
   kotoris: {
     name: "コトリス", type: "ひこう", sprite: "kotoris",
     base: { hp: 40, atk: 45, def: 40, spd: 56 }, expBase: 50, catchRate: 255,
-    learnset: [[1, "peck"], [9, "winghit"]],
+    learnset: [[1, "peck"], [1, "leer"], [6, "gust"], [9, "winghit"], [13, "windcut"]],
   },
   mushimaru: {
     name: "ムシマル", type: "むし", sprite: "mushimaru",
@@ -83,7 +90,12 @@ const SPECIES = {
   denris: {
     name: "デンリス", type: "でんき", sprite: "denris",
     base: { hp: 38, atk: 55, def: 35, spd: 80 }, expBase: 65, catchRate: 120,
-    learnset: [[1, "zap"], [11, "spark"]],
+    learnset: [[1, "zap"], [1, "quickhit"], [8, "charge"], [11, "spark"]],
+  },
+  norinezu: {
+    name: "ノリネズ", type: "ノーマル", sprite: "norinezu",
+    base: { hp: 48, atk: 50, def: 42, spd: 58 }, expBase: 52, catchRate: 255,
+    learnset: [[1, "tackle"], [1, "leer"], [6, "quickhit"], [12, "bite"], [18, "slamrush"]],
   },
   enhibana: {
     name: "エンヒバナ", type: "ほのお", sprite: "enhibana",
@@ -108,17 +120,17 @@ const SPECIES = {
   kinokomo: {
     name: "キノコモ", type: "くさ", sprite: "kinokomo",
     base: { hp: 55, atk: 45, def: 60, spd: 25 }, expBase: 55, catchRate: 190,
-    learnset: [[1, "tackle"], [6, "leafcut"], [12, "sporeball"], [18, "greenslash"]],
+    learnset: [[1, "tackle"], [1, "harden"], [6, "vinewhip"], [12, "sporeball"], [18, "greenslash"]],
   },
   kodanupon: {
     name: "コダヌポン", type: "ノーマル", sprite: "kodanupon",
     base: { hp: 55, atk: 52, def: 45, spd: 48 }, expBase: 58, catchRate: 220,
-    learnset: [[1, "tackle"], [5, "growl"], [12, "slamrush"]],
+    learnset: [[1, "tackle"], [5, "growl"], [10, "bite"], [12, "slamrush"]],
   },
   hachibun: {
     name: "ハチブン", type: "むし", sprite: "hachibun",
     base: { hp: 40, atk: 58, def: 38, spd: 62 }, expBase: 60, catchRate: 180,
-    learnset: [[1, "needlepoke"], [10, "bugbite"], [16, "windcut"]],
+    learnset: [[1, "needlepoke"], [1, "quickhit"], [10, "bugbite"], [16, "windcut"]],
   },
   yorufuku: {
     name: "ヨルフク", type: "ひこう", sprite: "yorufuku",
@@ -489,6 +501,27 @@ const PIXEL = {
       "................",
     ],
   },
+  norinezu: {
+    pal: { K: "#1a1a1a", N: "#b08858", C: "#f0e0c0", P: "#f0a0b0", W: "#ffffff" },
+    g: [
+      "..K..........K..",
+      ".KNK........KNK.",
+      ".KNNKKKKKKKKNNK.",
+      ".KNNNNNNNNNNNNK.",
+      ".KNKWNNNNNNWKNK.",
+      ".KNNNNNNNNNNNNK.",
+      ".KNNNNPPPPNNNNK.",
+      ".KNNNPCCCCPNNNK.",
+      ".KNCCCCCCCCCCNK.",
+      ".KNCCCCCCCCCCNK.",
+      ".KNNCCCCCCCCNNK.",
+      "..KNNNNNNNNNNK..",
+      "...KNK....KNK...",
+      "....KNNNNNNK....",
+      ".....KK..KK.....",
+      "................",
+    ],
+  },
   yorufuku: {
     pal: { K: "#1a1a1a", N: "#8a6a4a", C: "#f0e0c0", Y: "#f0a030", W: "#ffffff" },
     g: [
@@ -666,9 +699,10 @@ const MAPS = {
     edges: { s: { map: "town", x: 9, y: 1 }, n: { map: "route2", x: 9, y: 22 } },
     signs: { "8,1": "↑ 2ばんルート\nコカゲのもり ほうめん" },
     encounters: [
-      { sp: "kotoris", w: 45, min: 2, max: 4 },
-      { sp: "mushimaru", w: 40, min: 2, max: 4 },
-      { sp: "denris", w: 15, min: 3, max: 5 },
+      { sp: "norinezu", w: 35, min: 2, max: 4 },
+      { sp: "kotoris", w: 30, min: 2, max: 4 },
+      { sp: "mushimaru", w: 25, min: 2, max: 4 },
+      { sp: "denris", w: 10, min: 3, max: 5 },
     ],
     npcs: [
       {
@@ -711,11 +745,12 @@ const MAPS = {
     edges: { s: { map: "route1", x: 9, y: 1 }, n: { map: "kokage", x: 9, y: 14 } },
     signs: { "8,1": "↑ コカゲまち\nもりの こかげで ひとやすみ" },
     encounters: [
-      { sp: "kinokomo", w: 30, min: 5, max: 8 },
-      { sp: "kodanupon", w: 30, min: 5, max: 8 },
-      { sp: "hachibun", w: 25, min: 6, max: 8 },
-      { sp: "yorufuku", w: 10, min: 6, max: 9 },
-      { sp: "mushimaru", w: 5, min: 7, max: 7 },
+      { sp: "kinokomo", w: 28, min: 5, max: 8 },
+      { sp: "kodanupon", w: 25, min: 5, max: 8 },
+      { sp: "hachibun", w: 22, min: 6, max: 8 },
+      { sp: "norinezu", w: 12, min: 6, max: 9 },
+      { sp: "yorufuku", w: 8, min: 6, max: 9 },
+      { sp: "mushimaru", w: 5, min: 7, max: 8 },
     ],
     npcs: [
       {
@@ -742,6 +777,18 @@ const MAPS = {
           win: "ミナ「つよいのね…\nコカゲまちは すぐ そこよ。」",
           post: "ミナ「コカゲまちの ほこらには\nもりびとの ヤナギさんが いるわ。」",
           reward: { potion: 1 },
+        },
+      },
+      {
+        id: "hiker", x: 9, y: 17, spr: "boy", dir: "down", sight: 3,
+        visible: () => true,
+        battle: {
+          name: "やまおとこの ゴウ",
+          team: [["kodanupon", 9], ["norinezu", 9], ["mushimaru", 10]],
+          flag: "t_route2_hiker",
+          intro: "ゴウ「もりを ぬけるには\nおれを たおしてからだ!」",
+          win: "ゴウ「ぬはは! いい きあいだ!\nもりびとに よろしくな!」",
+          post: "ゴウ「もりの くさむらは\nレベルあげに もってこいだぞ。」",
         },
       },
     ],
@@ -793,6 +840,20 @@ const MAPS = {
           } else {
             await say("おとこのこ「ほこらの ヤナギさんは\nむしタイプの めいじんなんだ。");
           }
+        },
+      },
+      {
+        id: "shop", x: 13, y: 11, spr: "prof", dir: "down",
+        visible: () => true,
+        talk: async () => {
+          await shopMenu(["capsule", "potion"]);
+        },
+      },
+      {
+        id: "shopinfo", x: 5, y: 12, spr: "boy", dir: "down",
+        visible: () => true,
+        talk: async () => {
+          await say("みせの ひと「モンカプセルや キズぐすりは\nトレーナーせんの しょうきんで かえるよ。");
         },
       },
     ],
