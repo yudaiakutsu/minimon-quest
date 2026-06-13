@@ -317,9 +317,17 @@ const game = {
   moving: false, prog: 0, tx: 0, ty: 0, walkFlip: false,
   party: [], box: [], bag: { capsule: 0, potion: 0 },
   money: 0,
+  dex: { seen: {}, caught: {} },
   flags: {},
   fade: 0,
 };
+function dexSee(sp) { if (!game.dex) game.dex = { seen: {}, caught: {} }; game.dex.seen[sp] = true; }
+function dexCatch(sp) { dexSee(sp); game.dex.caught[sp] = true; }
+
+// バッジ一覧(章ごとに追加)
+const BADGES = [
+  { flag: "badge1", name: "もりのバッジ", town: "コカゲまち" },
+];
 function curMap() { return MAPS[game.mapId]; }
 function tileAt(map, x, y) {
   if (y < 0 || y >= map.grid.length || x < 0 || x >= map.grid[0].length) return null;
@@ -330,13 +338,17 @@ function visibleNpcs(map) {
 }
 function saveGame() {
   localStorage.setItem(SAVEKEY, JSON.stringify({
-    party: game.party, box: game.box, bag: game.bag, money: game.money, flags: game.flags,
+    party: game.party, box: game.box, bag: game.bag, money: game.money, dex: game.dex, flags: game.flags,
     mapId: game.mapId, px: game.px, py: game.py,
   }));
 }
 function loadGame() {
   const d = JSON.parse(localStorage.getItem(SAVEKEY));
   Object.assign(game, d, { moving: false, prog: 0, dir: "down", fade: 8 });
+  if (!game.dex) game.dex = { seen: {}, caught: {} };
+  if (game.money == null) game.money = 0;
+  // 手持ち・ボックスは捕獲済みとして図鑑に反映
+  game.party.concat(game.box).forEach(m => dexCatch(m.sp));
 }
 
 // ---------- ミニモン生成・計算 ----------
@@ -468,11 +480,85 @@ function numberPicker(min, max, prompt, costFn) {
   return new Promise(res => sceneStack.push(new NumberPicker(min, max, prompt, costFn, res)));
 }
 
+// ---------- バッジ画面 ----------
+class BadgeScene {
+  constructor(res) { this.res = res; }
+  update() { if (Input.pressed.has("a") || Input.pressed.has("b")) { popScene(this); this.res(); } }
+  draw() {
+    ctx.fillStyle = "#283048"; ctx.fillRect(0, 0, W, H);
+    drawBox(8, 6, W - 16, 18);
+    drawText("ジムバッジ", 16, 10);
+    const got = BADGES.filter(b => game.flags[b.flag]).length;
+    drawText(`${got} / 8`, 196, 10, "#c08828");
+    for (let i = 0; i < 8; i++) {
+      const col = i % 4, row = Math.floor(i / 4);
+      const x = 24 + col * 52, y = 36 + row * 56;
+      const b = BADGES[i];
+      const has = b && game.flags[b.flag];
+      ctx.fillStyle = has ? "#f0c030" : "#3a4258";
+      ctx.beginPath(); ctx.arc(x + 16, y + 14, 14, 0, Math.PI * 2); ctx.fill();
+      if (has) {
+        ctx.fillStyle = "#fff8d0";
+        ctx.beginPath(); ctx.arc(x + 11, y + 9, 3, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 1; ctx.stroke();
+      drawText(has ? b.name : "------", x - 6, y + 32, has ? "#f8f8f8" : "#70788c");
+    }
+    drawText("Aボタンで もどる", 80, 150, "#9098c0");
+  }
+}
+function showBadges() { return new Promise(res => sceneStack.push(new BadgeScene(res))); }
+
+// ---------- 図鑑画面 ----------
+class DexScene {
+  constructor(res) {
+    this.res = res; this.cur = 0;
+    this.list = Object.keys(SPECIES);
+  }
+  update() {
+    const n = this.list.length;
+    if (Input.pressed.has("down")) this.cur = (this.cur + 1) % n;
+    if (Input.pressed.has("up")) this.cur = (this.cur + n - 1) % n;
+    if (Input.pressed.has("a") || Input.pressed.has("b")) { popScene(this); this.res(); }
+  }
+  draw() {
+    ctx.fillStyle = "#283048"; ctx.fillRect(0, 0, W, H);
+    const caught = this.list.filter(sp => game.dex.caught[sp]).length;
+    const seen = this.list.filter(sp => game.dex.seen[sp]).length;
+    drawBox(6, 4, 150, 18);
+    drawText("ミニモンずかん", 12, 8);
+    drawText(`み:${seen} と:${caught}`, 162, 8, "#c08828");
+    // リスト(7行ウィンドウ)
+    const top = clamp(this.cur - 3, 0, Math.max(0, this.list.length - 7));
+    for (let r = 0; r < 7 && top + r < this.list.length; r++) {
+      const idx = top + r, sp = this.list[idx];
+      const y = 28 + r * 16;
+      const seenIt = game.dex.seen[sp], caughtIt = game.dex.caught[sp];
+      if (idx === this.cur) drawText("▶", 8, y, "#f8d030");
+      const no = String(idx + 1).padStart(2, "0");
+      const nm = seenIt ? SPECIES[sp].name : "？？？？？";
+      drawText(`No.${no} ${nm}`, 20, y, seenIt ? "#f8f8f8" : "#70788c");
+      drawText(caughtIt ? "●" : seenIt ? "○" : "", 150, y, "#40c048");
+    }
+    // 選択中の絵
+    const sp = this.list[this.cur];
+    drawBox(170, 26, 64, 84);
+    if (game.dex.seen[sp]) {
+      drawSpr(SPECIES[sp].sprite, 178, 40, false, 3);
+      drawText(SPECIES[sp].type, 178, 92, "#90c0e0");
+    } else {
+      drawText("？", 196, 60, "#70788c");
+    }
+    drawText("Aボタンで もどる", 80, 150, "#9098c0");
+  }
+}
+function showDex() { return new Promise(res => sceneStack.push(new DexScene(res))); }
+
 // ---------- メニュー ----------
 async function openMenu() {
   while (true) {
-    const i = await choice({ items: ["ミニモン", "バッグ", "レポート", "とじる"], rect: [136, 8, 96] });
-    if (i < 0 || i === 3) return;
+    const i = await choice({ items: ["ミニモン", "ずかん", "バッグ", "バッジ", "レポート", "とじる"], rect: [132, 8, 100] });
+    if (i < 0 || i === 5) return;
     if (i === 0) {
       if (!game.party.length) { await say("ミニモンを もっていない。"); continue; }
       while (true) {
@@ -482,8 +568,10 @@ async function openMenu() {
         await say(`${m.name} Lv${m.level} ${m.type}タイプ\nこうげき${m.stats.atk} ぼうぎょ${m.stats.def} すばやさ${m.stats.spd}`);
       }
     }
-    if (i === 1) await bagMenu(null);
-    if (i === 2) { saveGame(); await say("レポートに しっかり かきのこした!"); }
+    if (i === 1) await showDex();
+    if (i === 2) await bagMenu(null);
+    if (i === 3) await showBadges();
+    if (i === 4) { saveGame(); await say("レポートに しっかり かきのこした!"); }
   }
 }
 
@@ -498,6 +586,7 @@ async function starterBall(sp) {
   const c = await choice({ items: ["なかまに する", "やめておく"] });
   if (c !== 0) return;
   game.party.push(makeMon(sp, 5));
+  dexCatch(sp);
   game.flags.starterChosen = true;
   game.flags.starter = sp;
   await say(`${PLAYER_NAME}は ${s.name}を なかまに した!`);
@@ -744,6 +833,7 @@ class BattleScene {
     this.trainer = opts.trainer || null;
     this.team = this.trainer && this.trainer.team ? this.trainer.team.slice() : null;
     this.enemy = this.wild || (this.team ? this.team[0] : this.trainer.mon);
+    dexSee(this.enemy.sp);
     this.playerMon = game.party.find(m => m.hp > 0);
     this.playerMon.stages = { atk: 0, def: 0, spd: 0 };
     this.disp = { p: this.playerMon.hp, e: this.enemy.hp };
@@ -872,6 +962,7 @@ class BattleScene {
         this.enemy = next;
         this.disp.e = next.hp;
         next.stages = { atk: 0, def: 0, spd: 0 };
+        dexSee(next.sp);
         await say(`${this.trainer.name}は\n${next.name}を くりだした!`);
         return null;
       }
@@ -900,6 +991,7 @@ class BattleScene {
       return false;
     }
     this.caught = true;
+    dexCatch(e.sp);
     await say(`やったー!\n${e.name}を つかまえた!`);
     e.stages = { atk: 0, def: 0, spd: 0 };
     if (game.party.length < 6) {
@@ -1087,6 +1179,7 @@ function newGame() {
   game.party = []; game.box = [];
   game.bag = { capsule: 0, potion: 0 };
   game.money = 3000;
+  game.dex = { seen: {}, caught: {} };
   game.flags = {};
   game.fade = 12;
   (async () => {
