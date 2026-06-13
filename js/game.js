@@ -33,12 +33,14 @@ function waitFrames(n) { return new Promise(r => waiters.push({ n, r })); }
 // ---------- スプライト ----------
 const SPR = {};
 function buildSprite(def, palOverride) {
+  const h = def.g.length;
+  const w = def.g.reduce((m, r) => Math.max(m, r.length), 0);
   const c = document.createElement("canvas");
-  c.width = 16; c.height = 16;
+  c.width = w; c.height = h;
   const g = c.getContext("2d");
   const pal = Object.assign({}, def.pal, palOverride || {});
   def.g.forEach((row, y) => {
-    for (let x = 0; x < 16 && x < row.length; x++) {
+    for (let x = 0; x < row.length; x++) {
       const ch = row[x];
       if (ch === "." || !pal[ch]) continue;
       g.fillStyle = pal[ch];
@@ -64,9 +66,10 @@ function initSprites() {
 function drawSpr(key, x, y, flip, scale) {
   const s = SPR[key];
   if (!s) return;
-  const sc = scale || 1;
+  // scaleは「16px原寸を基準」とする。大きい絵は同じ表示サイズで高精細になる。
+  const sc = (scale || 1) * 16 / s.width;
   ctx.save();
-  if (flip) { ctx.translate(x + 16 * sc, y); ctx.scale(-sc, sc); }
+  if (flip) { ctx.translate(x + s.width * sc, y); ctx.scale(-sc, sc); }
   else { ctx.translate(x, y); ctx.scale(sc, sc); }
   ctx.drawImage(s, 0, 0);
   ctx.restore();
@@ -1176,11 +1179,11 @@ class BattleScene {
     ctx.fillRect(0, 96, W, 64);
     // 足場
     ctx.fillStyle = "#a8cc90";
-    ctx.beginPath(); ctx.ellipse(178, 66, 38, 10, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(56, 112, 42, 10, 0, 0, Math.PI * 2); ctx.fill();
-    // スプライト
-    if (!this.caught) drawSpr(SPECIES[this.enemy.sp].sprite, 154, 18, false, 3);
-    drawSpr(SPECIES[this.playerMon.sp].sprite, 32, 66, true, 3);
+    ctx.beginPath(); ctx.ellipse(180, 70, 42, 11, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(54, 116, 46, 11, 0, 0, Math.PI * 2); ctx.fill();
+    // スプライト(32x32原寸を 2倍=64px で くっきり表示)
+    if (!this.caught) drawSpr(SPECIES[this.enemy.sp].sprite, 148, 10, false, 4);
+    drawSpr(SPECIES[this.playerMon.sp].sprite, 22, 58, true, 4);
     // 敵ステータス
     drawBox(6, 6, 106, 28);
     drawText(this.enemy.name, 12, 9);
