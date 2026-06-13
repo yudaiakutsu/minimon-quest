@@ -38,6 +38,14 @@ const MOVES = {
   bugbite:    { name: "むしかじり",        type: "むし",     power: 60, acc: 100 },
   zap:        { name: "ビリビリ",          type: "でんき",   power: 40, acc: 100 },
   spark:      { name: "スパーク",          type: "でんき",   power: 65, acc: 100 },
+  blazeburst: { name: "ごうかえん",        type: "ほのお",   power: 90, acc: 95 },
+  aquaburst:  { name: "だくりゅう",        type: "みず",     power: 90, acc: 95 },
+  jungleslash:{ name: "ジャングルぎり",    type: "くさ",     power: 90, acc: 95 },
+  powderstorm:{ name: "りんぷんあらし",    type: "むし",     power: 65, acc: 100 },
+  sporeball:  { name: "ほうしだま",        type: "くさ",     power: 50, acc: 100 },
+  slamrush:   { name: "ぶちかまし",        type: "ノーマル", power: 60, acc: 100 },
+  needlepoke: { name: "はりつつき",        type: "むし",     power: 35, acc: 100 },
+  windcut:    { name: "かぜきり",          type: "ひこう",   power: 65, acc: 100 },
 };
 const STATNAME = { atk: "こうげき", def: "ぼうぎょ", spd: "すばやさ" };
 
@@ -47,16 +55,19 @@ const SPECIES = {
     name: "ヒバナル", type: "ほのお", sprite: "hibanaru",
     base: { hp: 44, atk: 52, def: 43, spd: 65 }, expBase: 62, catchRate: 45,
     learnset: [[1, "scratch"], [1, "growl"], [7, "ember"], [13, "flamewheel"]],
+    evolve: { lv: 14, to: "enhibana" },
   },
   shizukun: {
     name: "シズクン", type: "みず", sprite: "shizukun",
     base: { hp: 50, atk: 48, def: 50, spd: 55 }, expBase: 62, catchRate: 45,
     learnset: [[1, "tackle"], [1, "growl"], [7, "watergun"], [13, "aquashot"]],
+    evolve: { lv: 14, to: "shizukuga" },
   },
   happami: {
     name: "ハッパミ", type: "くさ", sprite: "happami",
     base: { hp: 52, atk: 46, def: 52, spd: 50 }, expBase: 62, catchRate: 45,
     learnset: [[1, "tackle"], [1, "harden"], [7, "leafcut"], [13, "greenslash"]],
+    evolve: { lv: 14, to: "happard" },
   },
   kotoris: {
     name: "コトリス", type: "ひこう", sprite: "kotoris",
@@ -67,11 +78,52 @@ const SPECIES = {
     name: "ムシマル", type: "むし", sprite: "mushimaru",
     base: { hp: 45, atk: 40, def: 50, spd: 35 }, expBase: 45, catchRate: 255,
     learnset: [[1, "tackle"], [5, "stringshot"], [9, "bugbite"]],
+    evolve: { lv: 10, to: "choumaru" },
   },
   denris: {
     name: "デンリス", type: "でんき", sprite: "denris",
     base: { hp: 38, atk: 55, def: 35, spd: 80 }, expBase: 65, catchRate: 120,
     learnset: [[1, "zap"], [11, "spark"]],
+  },
+  enhibana: {
+    name: "エンヒバナ", type: "ほのお", sprite: "enhibana",
+    base: { hp: 60, atk: 72, def: 58, spd: 85 }, expBase: 142, catchRate: 45,
+    learnset: [[1, "scratch"], [1, "growl"], [7, "ember"], [13, "flamewheel"], [22, "blazeburst"]],
+  },
+  shizukuga: {
+    name: "シズクーガ", type: "みず", sprite: "shizukuga",
+    base: { hp: 68, atk: 65, def: 68, spd: 70 }, expBase: 142, catchRate: 45,
+    learnset: [[1, "tackle"], [1, "growl"], [7, "watergun"], [13, "aquashot"], [22, "aquaburst"]],
+  },
+  happard: {
+    name: "ハッパード", type: "くさ", sprite: "happard",
+    base: { hp: 70, atk: 62, def: 72, spd: 62 }, expBase: 142, catchRate: 45,
+    learnset: [[1, "tackle"], [1, "harden"], [7, "leafcut"], [13, "greenslash"], [22, "jungleslash"]],
+  },
+  choumaru: {
+    name: "チョウマル", type: "むし", sprite: "choumaru",
+    base: { hp: 60, atk: 55, def: 50, spd: 65 }, expBase: 120, catchRate: 120,
+    learnset: [[1, "bugbite"], [1, "stringshot"], [15, "powderstorm"], [20, "windcut"]],
+  },
+  kinokomo: {
+    name: "キノコモ", type: "くさ", sprite: "kinokomo",
+    base: { hp: 55, atk: 45, def: 60, spd: 25 }, expBase: 55, catchRate: 190,
+    learnset: [[1, "tackle"], [6, "leafcut"], [12, "sporeball"], [18, "greenslash"]],
+  },
+  kodanupon: {
+    name: "コダヌポン", type: "ノーマル", sprite: "kodanupon",
+    base: { hp: 55, atk: 52, def: 45, spd: 48 }, expBase: 58, catchRate: 220,
+    learnset: [[1, "tackle"], [5, "growl"], [12, "slamrush"]],
+  },
+  hachibun: {
+    name: "ハチブン", type: "むし", sprite: "hachibun",
+    base: { hp: 40, atk: 58, def: 38, spd: 62 }, expBase: 60, catchRate: 180,
+    learnset: [[1, "needlepoke"], [10, "bugbite"], [16, "windcut"]],
+  },
+  yorufuku: {
+    name: "ヨルフク", type: "ひこう", sprite: "yorufuku",
+    base: { hp: 52, atk: 50, def: 48, spd: 66 }, expBase: 70, catchRate: 120,
+    learnset: [[1, "peck"], [8, "winghit"], [14, "windcut"]],
   },
 };
 
@@ -290,13 +342,181 @@ const PIXEL = {
       "................",
     ],
   },
+  enhibana: {
+    pal: { K: "#1a1a1a", O: "#e86820", Y: "#ffd9a0", F: "#ffd000", R: "#ff3000", W: "#ffffff" },
+    g: [
+      "....KK..KK......",
+      "...KFFKKFFK.....",
+      "..KFRFFFFRFK....",
+      "..KFFOOOOFFK....",
+      ".KOOOOOOOOOOK...",
+      ".KOKWOOOOWKOK...",
+      ".KOOOOOOOOOOK...",
+      ".KOOYYYYYYOOK...",
+      ".KOYYYYYYYYOK...",
+      ".KOYYYYYYYYOKKK.",
+      ".KOYYYYYYYYOKFFK",
+      ".KOKYYYYYYKOKRFK",
+      ".KOKOOOOOOOKKFK.",
+      ".KOOOKKKKOOOK...",
+      ".KKK......KKK...",
+      "................",
+    ],
+  },
+  shizukuga: {
+    pal: { K: "#1a1a1a", B: "#3888d8", L: "#a0d8ff", W: "#ffffff" },
+    g: [
+      "......KKK.......",
+      ".....KBBBK......",
+      "....KBBBBBK.....",
+      "..KKBBLBBLBKK...",
+      ".KBBBBBBBBBBBK..",
+      ".KBKWBBBBBWKBK..",
+      "KBBBBBBBBBBBBBK.",
+      "KBBBKKKKKBBBBBK.",
+      "KBBBBBBBBBBBBK..",
+      "KLBBBBBBBBBBLK..",
+      ".KBBBBBBBBBBK...",
+      ".KLBBBBBBBLK....",
+      "..KBBBBBBBK.....",
+      "..KBKKKKKBK.....",
+      "...KK...KK......",
+      "................",
+    ],
+  },
+  happard: {
+    pal: { K: "#1a1a1a", G: "#58a838", D: "#3a6826", C: "#f8f0d0", W: "#ffffff" },
+    g: [
+      ".....KKKK.......",
+      "....KDDDDK......",
+      "..KKDDDDDDKK....",
+      ".KDDDKDDKDDDK...",
+      "...KKGGGGKK.....",
+      ".KKGGGGGGGGKK...",
+      ".KGGGGGGGGGGK...",
+      ".KGKWGGGGWKGK...",
+      ".KGGGGGGGGGGK...",
+      ".KGCCCCCCCCGK...",
+      ".KGCCCCCCCCGK...",
+      ".KGGCCCCCCGGK...",
+      ".KGGGGGGGGGGK...",
+      ".KGGK....KGGK...",
+      ".KKK......KKK...",
+      "................",
+    ],
+  },
+  choumaru: {
+    pal: { K: "#1a1a1a", G: "#90c830", P: "#f0a0d0", W: "#ffffff" },
+    g: [
+      "..KKK......KKK..",
+      ".KPPPK....KPPPK.",
+      "KPPPPPK..KPPPPPK",
+      "KPWPPPPKKPPPPWPK",
+      "KPPPPPKGGKPPPPPK",
+      ".KPPPKGGGGKPPPK.",
+      "..KKKGKWWKGKKK..",
+      "..KPPGGGGGGPPK..",
+      ".KPPPKGGGGKPPPK.",
+      "KPPPPKGGGGKPPPPK",
+      "KPPPKGGGGGGKPPPK",
+      "KPPK..KGGK..KPPK",
+      ".KK...KGGK...KK.",
+      "......KKKK......",
+      "................",
+      "................",
+    ],
+  },
+  kinokomo: {
+    pal: { K: "#1a1a1a", R: "#d04040", C: "#f0e0c0", W: "#ffffff" },
+    g: [
+      ".....KKKKK......",
+      "...KKRRRRRKK....",
+      "..KRRWRRRWRRK...",
+      ".KRRRRRRRRRRRK..",
+      ".KRWRRRRRRWRRK..",
+      ".KKKKKKKKKKKKK..",
+      "..KCCCCCCCCCK...",
+      "..KCKWCCCWKCK...",
+      "..KCCCCCCCCCK...",
+      "..KCCKKKKKCCK...",
+      "..KCCCCCCCCCK...",
+      "...KCCCCCCCK....",
+      "...KCK...KCK....",
+      "...KK.....KK....",
+      "................",
+      "................",
+    ],
+  },
+  kodanupon: {
+    pal: { K: "#1a1a1a", N: "#a07040", C: "#f0e0c0", M: "#5a4028", W: "#ffffff" },
+    g: [
+      "...KK....KK.....",
+      "..KNNK..KNNK....",
+      "..KNNNKKNNNK....",
+      ".KNNNNNNNNNNK...",
+      ".KMMKNNNNKMMK...",
+      ".KMKWNNNNWKMK...",
+      ".KNNNNNNNNNNK...",
+      ".KNNCCCCCCNNK...",
+      ".KNCCCCCCCCNK...",
+      ".KNCCCCCCCCNK...",
+      ".KNNCCCCCCNNK...",
+      "..KNNNNNNNNK....",
+      "..KNK....KNK....",
+      "..KK......KK....",
+      "................",
+      "................",
+    ],
+  },
+  hachibun: {
+    pal: { K: "#1a1a1a", Y: "#f8d030", W: "#e8f0f8" },
+    g: [
+      "....KK..KK......",
+      "...KWWKKWWK.....",
+      "..KWWWKKWWWK....",
+      "..KWWKYYKWWK....",
+      "...KKYYYYKK.....",
+      "..KYKWYYWKYK....",
+      "..KYYYYYYYYK....",
+      "..KKKKKKKKKK....",
+      "..KYYYYYYYYK....",
+      "..KKKKKKKKKK....",
+      "..KYYYYYYYYK....",
+      "...KYYYYYYK.....",
+      "....KYYYYK......",
+      ".....KKKK.......",
+      "......KK........",
+      "................",
+    ],
+  },
+  yorufuku: {
+    pal: { K: "#1a1a1a", N: "#8a6a4a", C: "#f0e0c0", Y: "#f0a030", W: "#ffffff" },
+    g: [
+      "...KK......KK...",
+      "..KNNKKKKKKNNK..",
+      ".KNNNNNNNNNNNNK.",
+      ".KNKWWKNNKWWKNK.",
+      ".KNWKWWNNWWKWNK.",
+      ".KNKWWKYYKWWKNK.",
+      ".KNNNNKYYKNNNNK.",
+      ".KNNNNNNNNNNNNK.",
+      ".KNCCCCCCCCCCNK.",
+      ".KNCCCCCCCCCCNK.",
+      ".KNNCCCCCCCCNNK.",
+      "..KNNNNNNNNNNK..",
+      "...KNNK..KNNK...",
+      "....KYK..KYK....",
+      "....KK....KK....",
+      "................",
+    ],
+  },
 };
 
 // ---------- マップ ----------
 // タイル: . 草地  , 花  P 道  T 草むら(エンカウント)  R 木  W 水
 //         r 屋根  w 壁  o 窓  D ドア(ワープ)  S かんばん
 //         k 本だな/かべ  f ゆか  t つくえ  e ベッド  M マット(ワープ)
-const SOLID_TILES = new Set(["R", "W", "r", "w", "o", "S", "k", "t", "e"]);
+const SOLID_TILES = new Set(["R", "W", "r", "w", "o", "S", "k", "t", "e", "b"]);
 
 const MAPS = {
   town: {
@@ -415,7 +635,7 @@ const MAPS = {
   route1: {
     name: "1ばんルート",
     grid: [
-      "RRRRRRRRRRRRRRRRRRR",
+      "RRRRRRRRR.RRRRRRRRR",
       "R.......SP........R",
       "R..TTTT..P..TTTT..R",
       "R..TTTT..P..TTTT..R",
@@ -443,8 +663,8 @@ const MAPS = {
       "RRRRRRRRR.RRRRRRRRR",
     ],
     warps: [],
-    edges: { s: { map: "town", x: 9, y: 1 } },
-    signs: { "8,1": "この さきは こうじちゅう!\nつづきは じかいさく…らしい。" },
+    edges: { s: { map: "town", x: 9, y: 1 }, n: { map: "route2", x: 9, y: 22 } },
+    signs: { "8,1": "↑ 2ばんルート\nコカゲのもり ほうめん" },
     encounters: [
       { sp: "kotoris", w: 45, min: 2, max: 4 },
       { sp: "mushimaru", w: 40, min: 2, max: 4 },
@@ -455,6 +675,183 @@ const MAPS = {
         id: "rival", x: 9, y: 11, spr: "rival", dir: "down",
         visible: f => !f.rivalBeaten,
         talk: async () => rivalBattle(),
+      },
+    ],
+  },
+
+  route2: {
+    name: "2ばんルート",
+    grid: [
+      "RRRRRRRRR.RRRRRRRRR",
+      "R........P........R",
+      "R..TTT...P...TTT..R",
+      "R..TTT...P...TTT..R",
+      "R........P........R",
+      "R...PPPPPP........R",
+      "R...P....RRRR.....R",
+      "R...P....RRRR..,..R",
+      "R...P....RRRR.....R",
+      "R...PPPPPPPPPP....R",
+      "R..TTT...R...P.TT.R",
+      "R..TTT...R...P.TT.R",
+      "R........R...P....R",
+      "R....RRRRR...P....R",
+      "R....R...PPPPP....R",
+      "R....R...P...RR...R",
+      "R.,..R...P....R.,.R",
+      "R..TTTT..P..TTTT..R",
+      "R..TTTT..P..TTTT..R",
+      "R........P........R",
+      "R........P........R",
+      "R..TT....P....TT..R",
+      "R........P........R",
+      "RRRRRRRRR.RRRRRRRRR",
+    ],
+    warps: [],
+    edges: { s: { map: "route1", x: 9, y: 1 }, n: { map: "kokage", x: 9, y: 14 } },
+    signs: { "8,1": "↑ コカゲまち\nもりの こかげで ひとやすみ" },
+    encounters: [
+      { sp: "kinokomo", w: 30, min: 5, max: 8 },
+      { sp: "kodanupon", w: 30, min: 5, max: 8 },
+      { sp: "hachibun", w: 25, min: 6, max: 8 },
+      { sp: "yorufuku", w: 10, min: 6, max: 9 },
+      { sp: "mushimaru", w: 5, min: 7, max: 7 },
+    ],
+    npcs: [
+      {
+        id: "bugboy", x: 4, y: 5, spr: "boy", dir: "down", sight: 3,
+        visible: () => true,
+        battle: {
+          name: "むしとりしょうねんの タケト",
+          team: [["mushimaru", 7], ["hachibun", 8]],
+          flag: "t_route2_bugboy",
+          intro: "タケト「ぼくの むしミニモンは\nもりで きたえた さいきょうなんだ!」",
+          win: "タケト「ぼくの むしたちが…!\nまだまだ きたえなおしだ!」",
+          post: "タケト「もりの おくには もっと\nつよい トレーナーが いるよ。」",
+          reward: { capsule: 2 },
+        },
+      },
+      {
+        id: "picnic", x: 13, y: 14, spr: "lady", dir: "left", sight: 3,
+        visible: () => true,
+        battle: {
+          name: "ピクニックがおの ミナ",
+          team: [["kinokomo", 8], ["kodanupon", 8]],
+          flag: "t_route2_picnic",
+          intro: "ミナ「あら かわいい ミニモン!\nでも まけないわよ?」",
+          win: "ミナ「つよいのね…\nコカゲまちは すぐ そこよ。」",
+          post: "ミナ「コカゲまちの ほこらには\nもりびとの ヤナギさんが いるわ。」",
+          reward: { potion: 1 },
+        },
+      },
+    ],
+  },
+
+  kokage: {
+    name: "コカゲまち",
+    grid: [
+      "RRRRRRRRRRRRRRRRRRR",
+      "R........P........R",
+      "R...rrrrrrrrr.....R",
+      "R...rrrrrrrrr.....R",
+      "R...rrrrrDrrr.....R",
+      "R........P........R",
+      "R.,......P......,.R",
+      "R........P........R",
+      "R..rrrr......rrrr.R",
+      "R..rrrr......rrrr.R",
+      "R..wwww......wwww.R",
+      "R........P........R",
+      "R...,....P....,...R",
+      "R........P........R",
+      "RRRRRRRRR.RRRRRRRRR",
+    ],
+    warps: [
+      { x: 9, y: 4, to: { map: "shrine1", x: 6, y: 8, dir: "up" } },
+    ],
+    edges: { s: { map: "route2", x: 9, y: 1 } },
+    signs: { "9,5": "コカゲまち ほこら\n~もりの まもり ヤナギ~" },
+    npcs: [
+      {
+        id: "nurse", x: 4, y: 7, spr: "lady", dir: "right",
+        visible: () => true,
+        talk: async () => {
+          await say("ヒーラー「ようこそ コカゲまちへ。\nミニモンを やすめていって。」");
+          game.party.forEach(m => { m.hp = m.maxHp; });
+          await say("ミニモンたちは げんきいっぱいに なった!");
+          if (!game.flags.badge1) {
+            await say("ヒーラー「きたの ほこらで\nヤナギさんが まってるわよ。」");
+          }
+        },
+      },
+      {
+        id: "townboy", x: 13, y: 7, spr: "boy", dir: "left",
+        visible: () => true,
+        talk: async () => {
+          if (game.flags.badge1) {
+            await say("おとこのこ「ヤナギさんに かったんだ!?\nすごいや、きみ つよいんだね!");
+          } else {
+            await say("おとこのこ「ほこらの ヤナギさんは\nむしタイプの めいじんなんだ。");
+          }
+        },
+      },
+    ],
+  },
+
+  shrine1: {
+    name: "コカゲのほこら",
+    grid: [
+      "kkkkkkkkkkkkk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfftffffftffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kkkkkkMkkkkkk",
+    ],
+    warps: [
+      { x: 6, y: 9, to: { map: "kokage", x: 9, y: 5, dir: "down" } },
+    ],
+    signs: {},
+    npcs: [
+      {
+        id: "guard", x: 3, y: 5, spr: "boy", dir: "right", sight: 4,
+        visible: () => true,
+        battle: {
+          name: "ほこらの みならい",
+          team: [["mushimaru", 8], ["kinokomo", 9]],
+          flag: "t_shrine1_guard",
+          intro: "みならい「ヤナギさまに あうには\nまず ぼくを たおさないと!」",
+          win: "みならい「みごと…!\nヤナギさまは おくに おられます。」",
+          post: "みならい「ヤナギさまは おくだ。\nがんばって!」",
+        },
+      },
+      {
+        id: "yanagi", x: 6, y: 2, spr: "lady", dir: "down",
+        visible: () => true,
+        talk: async () => {
+          if (game.flags.badge1) {
+            await say("ヤナギ「きみの むしへの あいは ほんもの。\nこれからの たびも きを つけてな。」");
+            return;
+          }
+          await say("ヤナギ「わたしが もりびとの ヤナギ。\nこの ほこらを まもる ものです。」");
+          await say("ヤナギ「むしタイプの こわさ、\nその みで あじわいなさい!」");
+          await trainerBattleData({
+            name: "もりびとの ヤナギ",
+            team: [["hachibun", 10], ["yorufuku", 9], ["choumaru", 12]],
+            flag: "t_shrine1_yanagi",
+            win: "ヤナギ「…まいりました。\nきみには ほんものの ちからが ある。」",
+            reward: { badge: "badge1", capsule: 3, potion: 2 },
+            after: async () => {
+              await say("ヤナギから 「もりのバッジ」を\nうけとった!");
+              await say("ヤナギ「これで きみは せいしきな\nトレーナーへ いっぽ ちかづいた。」");
+              await say("ヤナギ「…そういえば。きみの けんきゅうじょの\nオカダはかせ。むかし この ほこらを\nしらべに きた ことが あったよ。」");
+            },
+          });
+        },
       },
     ],
   },

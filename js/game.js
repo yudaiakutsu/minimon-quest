@@ -470,6 +470,38 @@ async function rivalBattle() {
   }
 }
 
+// データ定義(NPCのbattle / talk内)から呼ぶ汎用トレーナー戦
+async function trainerBattleData(b) {
+  if (b.intro) await say(b.intro);
+  const team = b.team.map(([sp, lv]) => makeMon(sp, lv));
+  const result = await startBattle({ trainer: { name: b.name, team } });
+  if (result === "win") {
+    if (b.flag) game.flags[b.flag] = true;
+    if (b.win) await say(b.win);
+    const r = b.reward;
+    if (r) {
+      if (r.capsule) game.bag.capsule += r.capsule;
+      if (r.potion) game.bag.potion += r.potion;
+      if (r.badge) game.flags[r.badge] = true;
+    }
+    if (b.after) await b.after();
+  } else if (result === "loss") {
+    await whiteout();
+  }
+  return result;
+}
+
+function npcInteract(npc) {
+  const opp = { up: "down", down: "up", left: "right", right: "left" };
+  npc.dir = opp[game.dir];
+  if (npc.battle) {
+    if (game.flags[npc.battle.flag]) say(npc.battle.post || npc.battle.win || "…");
+    else trainerBattleData(npc.battle);
+    return;
+  }
+  if (npc.talk) npc.talk();
+}
+
 async function whiteout() {
   await say(`${PLAYER_NAME}は めのまえが まっくらに なった…`);
   game.party.forEach(m => { m.hp = m.maxHp; });
@@ -542,6 +574,20 @@ const world = {
       rivalBattle();
       return;
     }
+    // トレーナーの視線エンカウント
+    for (const npc of visibleNpcs(map)) {
+      if (!npc.sight || !npc.battle || game.flags[npc.battle.flag]) continue;
+      const [sdx, sdy] = DIRV[npc.dir];
+      for (let i = 1; i <= npc.sight; i++) {
+        const cx = npc.x + sdx * i, cy = npc.y + sdy * i;
+        const tt = tileAt(map, cx, cy);
+        if (tt === null || SOLID_TILES.has(tt)) break;
+        if (cx === game.px && cy === game.py) {
+          npcInteract(npc);
+          return;
+        }
+      }
+    }
     // エンカウント
     const t = tileAt(map, game.px, game.py);
     if (t === "T" && map.encounters && game.party.some(m => m.hp > 0) && Math.random() < 0.15) {
@@ -564,9 +610,7 @@ const world = {
     const tx = game.px + dx, ty = game.py + dy;
     const npc = visibleNpcs(map).find(n => n.x === tx && n.y === ty);
     if (npc) {
-      const opp = { up: "down", down: "up", left: "right", right: "left" };
-      npc.dir = opp[game.dir];
-      npc.talk();
+      npcInteract(npc);
       return;
     }
     const obj = (map.objects || []).find(o => o.x === tx && o.y === ty);
@@ -639,7 +683,8 @@ class BattleScene {
     this.res = res;
     this.wild = opts.wild || null;
     this.trainer = opts.trainer || null;
-    this.enemy = this.wild || this.trainer.mon;
+    this.team = this.trainer && this.trainer.team ? this.trainer.team.slice() : null;
+    this.enemy = this.wild || (this.team ? this.team[0] : this.trainer.mon);
     this.playerMon = game.party.find(m => m.hp > 0);
     this.playerMon.stages = { atk: 0, def: 0, spd: 0 };
     this.disp = { p: this.playerMon.hp, e: this.enemy.hp };
@@ -736,11 +781,42 @@ class BattleScene {
         }
       }
     }
+    const ev = SPECIES[pm.sp].evolve;
+    if (ev && pm.level >= ev.lv) await this.evolveMon(pm, ev.to);
+  }
+
+  async evolveMon(m, toSp) {
+    await say(`おや…?\n${m.name}の ようすが…!`);
+    const oldName = m.name;
+    const s = SPECIES[toSp];
+    m.sp = toSp; m.name = s.name; m.type = s.type;
+    const oldMax = m.maxHp;
+    calcStats(m);
+    m.hp += m.maxHp - oldMax;
+    this.disp.p = m.hp;
+    await say(`${oldName}は ${s.name}に しんかした!`);
+    for (const [lv, mv] of s.learnset) {
+      if (lv <= m.level && !m.moves.includes(mv)) {
+        if (m.moves.length < 4) m.moves.push(mv);
+        else { m.moves.shift(); m.moves.push(mv); }
+      }
+    }
   }
 
   async enemyFainted() {
     await say(`${this.enemy.name}は たおれた!`);
     await this.gainExp();
+    if (this.team) {
+      const idx = this.team.indexOf(this.enemy);
+      const next = this.team[idx + 1];
+      if (next) {
+        this.enemy = next;
+        this.disp.e = next.hp;
+        next.stages = { atk: 0, def: 0, spd: 0 };
+        await say(`${this.trainer.name}は\n${next.name}を くりだした!`);
+        return null;
+      }
+    }
     if (this.trainer) await say(`${this.trainer.name}との しょうぶに かった!`);
     return "win";
   }
@@ -861,7 +937,11 @@ class BattleScene {
         if (turnEnd) break;
         if (side === "p") await this.doMove(this.playerMon, this.enemy, act.move, "e");
         else await this.doMove(this.enemy, this.playerMon, this.enemyMove(), "p");
-        if (this.enemy.hp <= 0) return await this.enemyFainted();
+        if (this.enemy.hp <= 0) {
+          const r = await this.enemyFainted();
+          if (r) return r;
+          turnEnd = true;
+        }
         if (this.playerMon.hp <= 0) {
           const r = await this.handlePlayerFaint();
           if (r) return r;
