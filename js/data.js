@@ -137,6 +137,16 @@ const SPECIES = {
     base: { hp: 52, atk: 50, def: 48, spd: 66 }, expBase: 70, catchRate: 120,
     learnset: [[1, "peck"], [8, "winghit"], [14, "windcut"]],
   },
+  tokagell: {
+    name: "トカゲル", type: "ほのお", sprite: "tokagell",
+    base: { hp: 50, atk: 60, def: 45, spd: 58 }, expBase: 72, catchRate: 150,
+    learnset: [[1, "scratch"], [1, "growl"], [10, "ember"], [16, "bite"], [22, "flamewheel"]],
+  },
+  iwankoro: {
+    name: "イワンコロ", type: "ノーマル", sprite: "iwankoro",
+    base: { hp: 65, atk: 55, def: 68, spd: 30 }, expBase: 68, catchRate: 150,
+    learnset: [[1, "tackle"], [1, "harden"], [9, "bite"], [15, "slamrush"]],
+  },
 };
 
 // ライバルはこちらの御三家に有利なタイプを選ぶ
@@ -783,6 +793,80 @@ const PIXEL = {
       "................................",
     ],
   },
+  tokagell: {
+    pal: { K: "#3a1404", O: "#f07828", D: "#c25216", Y: "#ffd98a", F: "#ffd21e", R: "#ff3a10", W: "#ffffff", P: "#1a0a02" },
+    g: [
+      "................................",
+      "..........KKKKKK................",
+      ".........KOOOOOOK...............",
+      "........KOOOOOOOOK..............",
+      "........KOOOOOOOOK..............",
+      "........KOWWKOKWWOK.............",
+      "........KOWPKOKWPOK.............",
+      "........KOOOOOOOOK..............",
+      "........KOODOODOOK..............",
+      ".........KOOOOOOK...............",
+      "......KKKKOOOOOOKKKK............",
+      ".....KOOOOOOOOOOOOOOK.......RR..",
+      "....KOOOOYYYYYYYYOOOK.....RRFF..",
+      "....KOOOYYYYYYYYYYOOK....RRFFF..",
+      "....KOOOYYYYYYYYYYOOK...RRFF....",
+      "....KOOOOYYYYYYYYOOOKKKRRF......",
+      ".....KOOOOOOOOOOOOOOKKKR........",
+      ".....KOOOOOOOOOOOOOOK...........",
+      "......KOOKKOOOOKKOOK............",
+      "......KOK.KOOOOK.KOK............",
+      "......KK..KOOOK..KK.............",
+      "..........KK.KK................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+    ],
+  },
+  iwankoro: {
+    pal: { K: "#2a2420", O: "#9a8e80", D: "#6e6256", M: "#4a4038", C: "#cfc6ba", W: "#ffffff", P: "#1a1612" },
+    g: [
+      "................................",
+      "...KK................KK.........",
+      "..KDDK..............KDDK........",
+      "..KDOK..KKKKKKKKKK...KDOK.......",
+      "..KDOKKDDDDDDDDDDDDKKKDOK.......",
+      "...KDDDDDDDDDDDDDDDDDDDK........",
+      "...KDDDOOOOOOOOOOOODDDDK........",
+      "..KDDOOOOOOOOOOOOOOOODDDK.......",
+      "..KDOOWWWOOOOOOOWWWOOOODK.......",
+      "..KDOOWPWOOOOOOOWPWOOOODK.......",
+      "..KDOOWWWOOOOOOOWWWOOOODK.......",
+      "..KDOOOOOOOMMMMOOOOOOOODK.......",
+      "..KDOOOOOOMCCCCMOOOOOOODK.......",
+      "...KDOOOOOOMMMMOOOOOODDK........",
+      "...KDDOOOOOOOOOOOOOODDK.........",
+      "....KDDDOOOOOOOOOODDDK..........",
+      ".....KDDDDDDDDDDDDDDK...........",
+      ".....KDOKKDDDDDDKKODK...........",
+      ".....KDK..KDDDDK..KDK...........",
+      ".....KK...KDDDDK...KK...........",
+      "..........KK..KK...............",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+      "................................",
+    ],
+  },
 };
 
 // ---------- マップ ----------
@@ -1037,7 +1121,7 @@ const MAPS = {
   kokage: {
     name: "コカゲまち",
     grid: [
-      "RRRRRRRRRRRRRRRRRRR",
+      "RRRRRRRRR.RRRRRRRRR",
       "R........P........R",
       "R...rrrrrrrrr.....R",
       "R...rrrrrrrrr.....R",
@@ -1056,8 +1140,8 @@ const MAPS = {
     warps: [
       { x: 9, y: 4, to: { map: "shrine1", x: 6, y: 8, dir: "up" } },
     ],
-    edges: { s: { map: "route2", x: 9, y: 1 } },
-    signs: { "9,5": "コカゲまち ほこら\n~もりの まもり ヤナギ~" },
+    edges: { s: { map: "route2", x: 9, y: 1 }, n: { map: "route3", x: 9, y: 22 } },
+    signs: { "9,5": "コカゲまち ほこら\n~もりの まもり ヤナギ~", "8,1": "↑ 3ばんルート\nヒダネのまち・かざんほうめん" },
     npcs: [
       {
         id: "nurse", x: 4, y: 7, spr: "lady", dir: "right",
@@ -1094,6 +1178,14 @@ const MAPS = {
         visible: () => true,
         talk: async () => {
           await say("みせの ひと「モンカプセルや キズぐすりは\nトレーナーせんの しょうきんで かえるよ。");
+        },
+      },
+      {
+        id: "gate3", x: 9, y: 1, spr: "boy", dir: "down",
+        visible: f => !f.badge1,
+        talk: async () => {
+          await say("けいびいん「3ばんルートの さきは\nかざんで あぶない。」");
+          await say("けいびいん「ほこらで バッジを とった\nトレーナーしか とおせないんだ。」");
         },
       },
     ],
@@ -1150,6 +1242,201 @@ const MAPS = {
               await say("ヤナギから 「もりのバッジ」を\nうけとった!");
               await say("ヤナギ「これで きみは せいしきな\nトレーナーへ いっぽ ちかづいた。」");
               await say("ヤナギ「…そういえば。きみの けんきゅうじょの\nオカダはかせ。むかし この ほこらを\nしらべに きた ことが あったよ。」");
+            },
+          });
+        },
+      },
+    ],
+  },
+
+  route3: {
+    name: "3ばんルート",
+    grid: [
+      "RRRRRRRRR.RRRRRRRRR",
+      "R........P........R",
+      "R..TTT...P...TTT..R",
+      "R..TTT...P...TTT..R",
+      "R........P........R",
+      "R...PPPPPP........R",
+      "R...P....,........R",
+      "R...P....RRRR.....R",
+      "R...PPPPPP..,.....R",
+      "R........P........R",
+      "R..TTT...P...TTT..R",
+      "R..TTT...P...TTT..R",
+      "R........P........R",
+      "R....,...P...,....R",
+      "R..TTTT..P..TTTT..R",
+      "R..TTTT..P..TTTT..R",
+      "R........P........R",
+      "R.,......P......,.R",
+      "R..TTT...P...TTT..R",
+      "R..TTT...P...TTT..R",
+      "R........P........R",
+      "R...,....P....,...R",
+      "R........P........R",
+      "RRRRRRRRR.RRRRRRRRR",
+    ],
+    warps: [],
+    edges: { s: { map: "kokage", x: 9, y: 1 }, n: { map: "hidane", x: 9, y: 13 } },
+    signs: { "8,1": "↑ ヒダネのまち\nかざんの ふもとの まち" },
+    encounters: [
+      { sp: "tokagell", w: 32, min: 10, max: 13 },
+      { sp: "iwankoro", w: 28, min: 10, max: 13 },
+      { sp: "kotoris", w: 18, min: 9, max: 12 },
+      { sp: "norinezu", w: 14, min: 9, max: 12 },
+      { sp: "denris", w: 8, min: 10, max: 13 },
+    ],
+    npcs: [
+      {
+        id: "hiker3", x: 12, y: 16, spr: "boy", dir: "left", sight: 3,
+        visible: () => true,
+        battle: {
+          name: "とざんかの イワオ",
+          team: [["iwankoro", 12], ["kodanupon", 11]],
+          flag: "t_route3_hiker",
+          intro: "イワオ「かざんの みちは けわしいぞ!\nおれを こえて いけるかな?」",
+          win: "イワオ「やるな!\nヒダネのまちは すぐ きただ。」",
+          post: "イワオ「さいきん やせいの ミニモンが\nやけに あばれて こまるよ…。」",
+        },
+      },
+      {
+        id: "burner3", x: 6, y: 9, spr: "lady", dir: "right", sight: 3,
+        visible: () => true,
+        battle: {
+          name: "ひぶきつかいの ホムラ",
+          team: [["tokagell", 12], ["hibanaru", 11], ["tokagell", 13]],
+          flag: "t_route3_burner",
+          intro: "ホムラ「ほのおの トレーナーの\nうでまえ、みせてあげる!」",
+          win: "ホムラ「あつい しょうぶだったわ…\nヒダネの ほこらで まってるわよ。」",
+          post: "ホムラ「ヒダネの ほこらの カグツさんは\nほのおタイプの たつじんよ。」",
+          reward: { potion: 2 },
+        },
+      },
+    ],
+  },
+
+  hidane: {
+    name: "ヒダネのまち",
+    grid: [
+      "RRRRRRRRRRRRRRRRRRR",
+      "R........P........R",
+      "R...rrrrrrrrr.....R",
+      "R...rrrrrrrrr.....R",
+      "R...rrrrrDrrr.....R",
+      "R........P........R",
+      "R.,......P......,.R",
+      "R........P........R",
+      "R..rrrr......rrrr.R",
+      "R..rrrr......rrrr.R",
+      "R..wwww......wwww.R",
+      "R........P........R",
+      "R...,....P....,...R",
+      "RRRRRRRRR.RRRRRRRRR",
+    ],
+    warps: [
+      { x: 9, y: 4, to: { map: "shrine4", x: 6, y: 8, dir: "up" } },
+    ],
+    edges: { s: { map: "route3", x: 9, y: 1 } },
+    signs: { "9,5": "ヒダネのまち ほこら\n~ひの まもり カグツ~" },
+    npcs: [
+      {
+        id: "nurse", x: 4, y: 7, spr: "lady", dir: "right",
+        visible: () => true,
+        talk: async () => {
+          await say("ヒーラー「ヒダネのまちへ ようこそ。\nミニモンを かいふくするわね。」");
+          game.party.forEach(m => { m.hp = m.maxHp; });
+          await say("ミニモンたちは げんきいっぱいに なった!");
+        },
+      },
+      {
+        id: "shop", x: 14, y: 11, spr: "prof", dir: "down",
+        visible: () => true,
+        talk: async () => { await shopMenu(["capsule", "potion"]); },
+      },
+      {
+        id: "prof", x: 13, y: 7, spr: "prof", dir: "left",
+        visible: () => true,
+        talk: async () => {
+          if (game.flags.badge2) {
+            await say("オカダはかせ「カグツに かったか!\nさすがは わたしの きたいの ほしじゃ。」");
+            return;
+          }
+          await say("オカダはかせ「おお ハル、ここまで きたか。\nじつは きみに たのみが あってな。」");
+          await say("オカダはかせ「この かざんの ほこらで\nまもりがみの ミニモンが きえたのじゃ。」");
+          await say("オカダはかせ「やせいの ほのおミニモンが\nあばれているのも その せいかもしれん。」");
+          if (!game.flags.prof_exile) {
+            game.flags.prof_exile = true;
+            await say("オカダはかせ「…わしは むかし おおきな かいしゃで\nミニモンの けんきゅうを しておった。」");
+            await say("オカダはかせ「だが かいしゃの やりかたに\nぎもんを もって、とびだしたのじゃ。」");
+            await say("オカダはかせ「いまは こうして いなかで\nのんびり… それが いちばんさ。ほっほっ。」");
+          }
+          await say("オカダはかせ「カグツに あって\nほこらの ことを きいてみなさい。」");
+        },
+      },
+      {
+        id: "townman", x: 5, y: 12, spr: "boy", dir: "down",
+        visible: () => true,
+        talk: async () => {
+          await say("まちの ひと「ほこらの まもりがみが\nきえてから、かざんが ざわついてる…。」");
+          await say("まちの ひと「だれかが もちさったって\nうわさも あるんだ。ぶっそうだろ?」");
+        },
+      },
+    ],
+  },
+
+  shrine4: {
+    name: "ヒダネのほこら",
+    grid: [
+      "kkkkkkkkkkkkk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfftffffftffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kfffffffffffk",
+      "kkkkkkMkkkkkk",
+    ],
+    warps: [
+      { x: 6, y: 9, to: { map: "hidane", x: 9, y: 5, dir: "down" } },
+    ],
+    signs: {},
+    npcs: [
+      {
+        id: "guard4", x: 3, y: 5, spr: "boy", dir: "right", sight: 4,
+        visible: () => true,
+        battle: {
+          name: "ほのおの みならい",
+          team: [["tokagell", 13], ["hibanaru", 14]],
+          flag: "t_shrine4_guard",
+          intro: "みならい「カグツさまに あう つもりか!\nまずは ぼくと しょうぶだ!」",
+          win: "みならい「あつい…!\nカグツさまは おくに おられます。」",
+          post: "みならい「カグツさまは おくだ。\nねっけつの しょうぶを たのしんで!」",
+        },
+      },
+      {
+        id: "kagutsu", x: 6, y: 2, spr: "prof", dir: "down",
+        visible: () => true,
+        talk: async () => {
+          if (game.flags.badge2) {
+            await say("カグツ「きみの ほのおは ほんものだ。\nまもりがみの ことは わしに まかせろ。」");
+            return;
+          }
+          await say("カグツ「わしが もりびとの カグツ。\nひの ほこらを まもる ものだ。」");
+          await say("カグツ「…じつは まもりがみの ミニモンが\nなにものかに さらわれて しまってな。」");
+          await say("カグツ「だが しょうぶは しょうぶ!\nわしの ほのお、うけてみよ!」");
+          await trainerBattleData({
+            name: "もりびとの カグツ",
+            team: [["iwankoro", 14], ["tokagell", 15], ["hibanaru", 17]],
+            flag: "t_shrine4_kagutsu",
+            win: "カグツ「みごとだ…!\nきみの ほのおは わしを こえた。」",
+            reward: { badge: "badge2", capsule: 4, potion: 3 },
+            after: async () => {
+              await say("カグツから 「ほのおのバッジ」を\nうけとった!");
+              await say("カグツ「まもりがみを さらった やつ、\nどうも カプセラしゃが くさい…。」");
+              await say("カグツ「きを つけろ。この さきの きりの たには\nやつらの しせつが あるという。」");
             },
           });
         },

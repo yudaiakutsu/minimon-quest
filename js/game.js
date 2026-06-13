@@ -330,6 +330,7 @@ function dexCatch(sp) { dexSee(sp); game.dex.caught[sp] = true; }
 // バッジ一覧(章ごとに追加)
 const BADGES = [
   { flag: "badge1", name: "もりのバッジ", town: "コカゲまち" },
+  { flag: "badge2", name: "ほのおのバッジ", town: "ヒダネのまち" },
 ];
 function curMap() { return MAPS[game.mapId]; }
 function tileAt(map, x, y) {
@@ -492,6 +493,14 @@ const DREAMS = {
     "「ハル… めを とじても\nこわくないからな」",
     "とおくで なにか おおきなものが\nねむっている きが する…",
     "…ハッ。\nいまのは… ゆめ だったのか?",
+  ],
+  badge2: [
+    "また あの ゆめ…。",
+    "まわりは くらく、つめたい。\nここは… げんじつ じゃ ない?",
+    "あの ひとの こえが する。\n「もう すこしだ。ここを ぬければ…」",
+    "ほのおの ような ひかりが\nとおくで またたいている。",
+    "そして だれかが、ちずを\nゆびで なぞっている きがした…",
+    "…め が さめた。\nむねが ざわついて はなれない。",
   ],
 };
 class DreamScene {
